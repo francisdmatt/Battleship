@@ -5,7 +5,25 @@
 // Date Started: 4/2/14                                        //  
 // Date Finished:                                              //
 // Status:                                                     //
-// Notes:                                                      //
+// Notes: The following board information regards the coded    //
+//         version of the board, the live version is converted //
+//         to H (Hit), M (Miss), or the respective ship on     //
+//         the player board C (Carrier), P (Patrol), etc.      //
+//                                                             //
+// The following is the player board dictionary(Int version)   //
+//       0 - Water                                             //
+//       1 - Hit                                               //
+//       2 - Patrol                                            //
+//       3 - Submarine                                         //
+//       4 - Destroyer                                         //
+//       5 - Carrier                                           //
+//       6 - Battleship                                        //
+//                                                             //
+// The following is the enemy board dictionary(Int version)    //
+//       0 - Water                                             //
+//       1 - Hit                                               //
+//       7 - Miss                                              //
+//                                                             //
 /////////////////////////////////////////////////////////////////
 
 import java.util.*;
@@ -27,6 +45,7 @@ public class BattleshipGame
       System.out.println("Generating Player 2 Board.");
       Player player2 = new Player("Player 2", boardSizeX, boardSizeY);
       
+      System.out.println("Let the game begin.");
       String temp = input.next();
       // Main Game Loop
       boolean player1Hit, player2Hit;
@@ -90,16 +109,6 @@ class Player
    }
    
    // Creates the initial board
-   // The following is the dictionary for the board:
-   /*
-         0 - Water
-         1 - Hit
-         2 - Patrol
-         3 - Submarine
-         4 - Destroyer
-         5 - Carrier
-         6 - Battleship
-   */
    private void generateShips(int[][] board, int boardSizeX, int boardSizeY)
    {
       // Initial Board Creation
@@ -115,38 +124,11 @@ class Player
          System.out.println();  
       }
       
-      
-      
       //Ship Generation
-      boolean shipsPlaced = false;
-      boolean battleshipPlaced = false;
-      boolean carrierPlaced = false;
-      boolean destroyerPlaced = false;
-      boolean submarinePlaced = false;
-      boolean patrolPlaced = false;
-      
-      while(shipsPlaced == false)
+      for(int i = 6; i > 1; i--)
       {
-         //Battleship (6 Spaces)
-         while(battleshipPlaced == false)
-         {
-            //Get random points for ship placement
-            String[] temp = shipInfo().split(",");
-            int[] info = new int[3];
-            for(int i = 0; i < 3; i++)
-               info[i] = Integer.parseInt(temp[i]);
-               
-            
-         }
-         //Carrier (5 Spaces)
-         //String carrierInfo = shipInfo()
-         
-         //Destroyer (4 Spaces)
-         
-         //Submarine (3 Spaces)
-         
-         //Patrol (2 Spaces)
-      }
+         placeShipAttempt(i,board);
+      } 
    }
    
    //Generates the starting board for the enemy
@@ -179,6 +161,28 @@ class Player
       // Example, direction = 3, column = 7, row = 2
       //    It would place the first point of the ship in 7,2 -> 6,2 -> 5,2 -> 4,2 -> 3,2 -> 2,2
       return direction + "," + column +  "," + row;
+   }
+   
+   // Place the different ships and mark it on the board
+   // Status: In Progress
+   private boolean placeShipAttempt(int size, int[][] board)
+   {
+      boolean shipPlaced = false;
+      while(shipPlaced == false)
+      {
+         //Get random points for ship placement
+         String[] temp = shipInfo().split(",");
+         int[] info = new int[3];
+         for(int i = 0; i < 3; i++)
+            info[i] = Integer.parseInt(temp[i]);
+      
+         // Take the information for ship placement above
+         // Check to see if it can fit
+         // If it can't, shipsPlaced remains false, it loops around, grabs new
+         // information and tries again.
+         // If it fits, commit the changes to the board
+      }    
+      return true;
    }
    
    public String shoot(int x, int y)
