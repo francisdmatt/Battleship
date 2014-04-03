@@ -32,8 +32,6 @@ import java.io.*;
 public class BattleshipGame
 {
    static Scanner input = new Scanner(System.in);
-   final static int boardSizeX = 10;
-   final static int boardSizeY = 10;
    static boolean winCondition = false;
    public static void main(String [] args)
    {
@@ -41,12 +39,13 @@ public class BattleshipGame
       System.out.println("Creating Player(s).");
       
       System.out.println("Generating Player 1 Board.");
-      Player player1 = new Player("Player 1", boardSizeX, boardSizeY);
+      Player player1 = new Player("Player 1");
       System.out.println("Generating Player 2 Board.");
-      Player player2 = new Player("Player 2", boardSizeX, boardSizeY);
+      Player player2 = new Player("Player 2");
       
       System.out.println("Let the game begin.");
       String temp = input.next();
+      
       // Main Game Loop
       boolean player1Hit, player2Hit;
       String player1Result, player2Result, gameWinner;
@@ -60,9 +59,9 @@ public class BattleshipGame
          while(player1Hit == true)
          {
             player1Result = "";
-            player1.displayEnemyBoard();
-            player1.displayMyBoard();
-            player1Result = player1.shoot(1,1); // return appropriate response
+            player1.displayEnemyBoard();  // Display players fired shots
+            player1.displayMyBoard();     // Display players board
+            player1Result = player1.shoot(); // return appropriate response
             player1Hit = false;
             if(winCondition == true)
                break;
@@ -71,9 +70,9 @@ public class BattleshipGame
          while(player2Hit == true)
          {
             player2Result = "";
-            player2.displayEnemyBoard();
-            player2.displayMyBoard();
-            player2Result = player2.shoot(1,1); // return appropriate response
+            player2.displayEnemyBoard();  // Display players fired shots
+            player2.displayMyBoard();     // Display players board 
+            player2Result = player2.shoot(); // return appropriate response
             player2Hit = false;
             if(winCondition == true)
                break;
@@ -84,18 +83,60 @@ public class BattleshipGame
 
 class Player
 {
+   static Scanner input = new Scanner(System.in);
    String playerName;
    private int remainingShips;
    private int[][] myBoard;
    private int[][] enemyBoard;
-   public Player(String player,int boardSizeX, int boardSizeY)
+   public Player(String player)
    {
       playerName = player;
       remainingShips = 5;
-      myBoard = new int[boardSizeX][boardSizeY];
-      enemyBoard = new int[boardSizeX][boardSizeY];
-      generateShips(myBoard, boardSizeX, boardSizeY);
-      generateEnemyBoard(enemyBoard, boardSizeX, boardSizeY);
+      myBoard = new int[10][10];
+      enemyBoard = new int[10][10];
+      generateShips(myBoard);
+      generateEnemyBoard(enemyBoard);
+   }
+      
+   // Creates the initial board
+   private void generateShips(int[][] board)
+   {
+      // Initial Board Creation
+      for(int q = 0; q < 10; q++)
+      {
+         for(int w = 0; w < 10; w++)
+         {
+            //System.out.print("|");
+            board[q][w] = 0;
+            System.out.print(board[q][w]);
+         }
+         //System.out.println("|");
+         System.out.println();  
+      }
+      
+      //Ship Generation
+      for(int i = 6; i > 1; i--)
+      {
+         placeShipAttempt(i,board);
+      } 
+   }
+   
+   //Generates the starting board for the enemy
+   // Status complete
+   private void generateEnemyBoard(int[][] board)
+   {
+      // Initial Board Creation
+      for(int q = 0; q < 10; q++)
+      {
+         for(int w = 0; w < 10; w++)
+         {
+            //System.out.print("|");
+            board[q][w] = 0;
+            System.out.print(board[q][w]);
+         }
+         //System.out.println("|");
+         System.out.println();  
+      }
    }
    
    public void displayMyBoard()
@@ -127,50 +168,8 @@ class Player
          System.out.println();  
       }
    }
-   
-   // Creates the initial board
-   private void generateShips(int[][] board, int boardSizeX, int boardSizeY)
-   {
-      // Initial Board Creation
-      for(int q = 0; q < boardSizeX; q++)
-      {
-         for(int w = 0; w < boardSizeY; w++)
-         {
-            //System.out.print("|");
-            board[q][w] = 0;
-            System.out.print(board[q][w]);
-         }
-         //System.out.println("|");
-         System.out.println();  
-      }
-      
-      //Ship Generation
-      for(int i = 6; i > 1; i--)
-      {
-         placeShipAttempt(i,board);
-      } 
-   }
-   
-   //Generates the starting board for the enemy
-   // Status complete
-   private void generateEnemyBoard(int[][] board, int boardSizeX, int boardSizeY)
-   {
-      // Initial Board Creation
-      for(int q = 0; q < boardSizeX; q++)
-      {
-         for(int w = 0; w < boardSizeY; w++)
-         {
-            //System.out.print("|");
-            board[q][w] = 0;
-            System.out.print(board[q][w]);
-         }
-         //System.out.println("|");
-         System.out.println();  
-      }
-   }
-   
+
    // Returns random start information for ship placement
-   // Status: Complete
    private String shipInfo()
    {
       Random rand = new Random();
@@ -184,7 +183,6 @@ class Player
    }
    
    // Place the different ships and mark it on the board
-   // Status: Complete
    private boolean placeShipAttempt(int size, int[][] board)
    {
       boolean shipPlaced = false;
@@ -257,9 +255,54 @@ class Player
       return shipPlaced;
    }
    
-   public String shoot(int x, int y)
+   //Player inputs their target coordinate, and the game sends a message to 
+   // the other player asking if it was a hit or miss, result is recorded on
+   // both players boards.
+   public String shoot()
    {
-      System.out.println(playerName + " SHOTS FIRED AT: (" + x + "," + y + ")!");
+      int xCoord, yCoord;
+      String target = "";
+      while(true)
+      {
+         System.out.println("Please enter your target (ex. a,4):");
+         target = input.next();
+         // Make sure the input is valid
+         if(target.length() == 3 && target.charAt(1) == ',')
+         {
+            String cords[] = target.split(",");
+            cords[0] = cords[0].toUpperCase();
+            xCoord = alphaToInt(cords[0]);
+            yCoord = Integer.parseInt(cords[1]);
+            break;
+         }
+         else
+            System.out.println("\tInvalid input. Try again");   
+      }
+      System.out.println(playerName + " SHOTS FIRED AT: (" + xCoord + "," + yCoord + ")!");
       return "string";
+   }
+   
+   public String iHaveBeenShot(int xCoord, int yCoord)
+   {
+      return "Damn.";
+   }
+   
+   private int alphaToInt(String character)
+   {
+      char temp = character.charAt(0);
+      switch(temp)
+      {
+         case 'A': return 0;
+         case 'B': return 1;
+         case 'C': return 2;
+         case 'D': return 3;
+         case 'E': return 4;
+         case 'F': return 5;
+         case 'G': return 6;
+         case 'H': return 7;
+         case 'I': return 8;
+         case 'J': return 9;
+      }
+      return -1;
    }
 }
