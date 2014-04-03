@@ -101,11 +101,31 @@ class Player
    public void displayMyBoard()
    {
       System.out.println(playerName + "'s Board");
+      for(int q = 0; q < 10; q++)
+      {
+         for(int w = 0; w < 10; w++)
+         {
+            //System.out.print("|");
+            System.out.print(myBoard[q][w]);
+         }
+         //System.out.println("|");
+         System.out.println();  
+      }
    }
    
    public void displayEnemyBoard()
    {
       System.out.println(playerName + "'s Fired Shots");
+      for(int q = 0; q < 10; q++)
+      {
+         for(int w = 0; w < 10; w++)
+         {
+            //System.out.print("|");
+            System.out.print(enemyBoard[q][w]);
+         }
+         //System.out.println("|");
+         System.out.println();  
+      }
    }
    
    // Creates the initial board
@@ -156,15 +176,15 @@ class Player
       Random rand = new Random();
       //Direction puts the head at this point and extends the opposite direction
       int direction = rand.nextInt(4); // 0 - N, 1 - S, 2 - E, 3 - W 
-      int column = rand.nextInt(10) + 1; // Random value 1 to 10
-      int row = rand.nextInt(10) + 1; // Random value 1 to 10, convert to letters in display
+      int column = rand.nextInt(10); // Random value 0 to 9
+      int row = rand.nextInt(10); // Random value 0 to 9, convert to letters in display
       // Example, direction = 3, column = 7, row = 2
       //    It would place the first point of the ship in 7,2 -> 6,2 -> 5,2 -> 4,2 -> 3,2 -> 2,2
-      return direction + "," + column +  "," + row;
+      return direction + "," + row +  "," + column;
    }
    
    // Place the different ships and mark it on the board
-   // Status: In Progress
+   // Status: Complete
    private boolean placeShipAttempt(int size, int[][] board)
    {
       boolean shipPlaced = false;
@@ -172,17 +192,69 @@ class Player
       {
          //Get random points for ship placement
          String[] temp = shipInfo().split(",");
-         int[] info = new int[3];
-         for(int i = 0; i < 3; i++)
-            info[i] = Integer.parseInt(temp[i]);
-      
-         // Take the information for ship placement above
-         // Check to see if it can fit
-         // If it can't, shipsPlaced remains false, it loops around, grabs new
-         // information and tries again.
-         // If it fits, commit the changes to the board
+         int direction, rowIndex, columnIndex;
+         direction = Integer.parseInt(temp[0]);
+         rowIndex = Integer.parseInt(temp[1]);
+         columnIndex = Integer.parseInt(temp[2]);
+         
+         // Check to see the origin spot is valid
+         if(board[rowIndex][columnIndex] == 0)
+         {
+            int temp1 = 0;
+            boolean isValidSpot = true;
+            if(direction == 0 || direction == 1)
+            {
+               for(int i = 0; i < size; i++)
+               {
+                  if(rowIndex+size > 9)
+                  {
+                     isValidSpot = false;
+                     break;
+                  }
+                  else if(board[rowIndex+i][columnIndex] == 0)
+                     temp1 = 0;
+                  else
+                  {
+                     isValidSpot = false;
+                     break;
+                  } 
+               }
+               if(isValidSpot == true)
+               {
+                  for(int p = 0; p < size; p++)
+                     board[rowIndex+p][columnIndex] = size;
+                  shipPlaced = true;
+               }    
+            }
+            else if(direction == 2 || direction == 3)
+            {
+               for(int i = 0; i < size; i++)
+               {
+                  if(columnIndex+size > 9)
+                  {
+                     isValidSpot = false;
+                     break;
+                  }
+                  else if(board[rowIndex][columnIndex+i] == 0)
+                     temp1 = 0;
+                  else
+                  {
+                     isValidSpot = false;
+                     break;
+                  } 
+               }
+               if(isValidSpot == true)
+               {
+                  for(int p = 0; p < size; p++)
+                     board[rowIndex][columnIndex+p] = size;
+                  shipPlaced = true;
+               }
+            }
+            else
+               break; 
+         }
       }    
-      return true;
+      return shipPlaced;
    }
    
    public String shoot(int x, int y)
