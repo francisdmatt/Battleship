@@ -12,13 +12,13 @@
 //                                                             //
 // The following is the player board dictionary(Int version)   //
 //       0 - Water                                             //
-//       1 - Hit                                               //
+//       1 - Hit (Other player's shot)                         //
 //       2 - Patrol                                            //
 //       3 - Submarine                                         //
 //       4 - Destroyer                                         //
 //       5 - Carrier                                           //
 //       6 - Battleship                                        //
-//                                                             //
+//       7 - Miss (Other player's shot)                        //
 // The following is the enemy board dictionary(Int version)    //
 //       0 - Water                                             //
 //       1 - Hit                                               //
@@ -29,26 +29,29 @@
 import java.util.*;
 import java.io.*;
 
+
 public class BattleshipGame
 {
+ 
    static Scanner input = new Scanner(System.in);
    static boolean winCondition = false;
    public static void main(String [] args)
    {
       // Create game variables
-      System.out.println("Creating Player(s).");
+      //System.out.println("Creating Player(s).");
       
-      System.out.println("Generating Player 1 Board.");
+      //System.out.println("Generating Player 1 Board.");
       Player player1 = new Player("Player 1");
-      System.out.println("Generating Player 2 Board.");
+      //System.out.println("Generating Player 2 Board.");
       Player player2 = new Player("Player 2");
       
       System.out.println("Let the game begin.");
-      String temp = input.next();
+      //String temp = input.next();
       
       // Main Game Loop
       boolean player1Hit, player2Hit;
       String player1Result, player2Result, gameWinner;
+      String player1Shots, player2Shots;
       // While no battleship has been sunk, the game will continue
       // If a player successfully hits an enemy ship, they get to go again
       while(winCondition == false)
@@ -56,24 +59,68 @@ public class BattleshipGame
          player1Hit = true;
          player2Hit = true;
          
-         while(player1Hit == true)
+         while(player1Hit == true && winCondition == false)
          {
             player1Result = "";
+            player1Shots = "";
             player1.displayEnemyBoard();  // Display players fired shots
             player1.displayMyBoard();     // Display players board
-            player1Result = player1.shoot(); // return appropriate response
-            player1Hit = false;
+            
+            player1Shots = player1.shoot(); // return appropriate response
+            String [] player1Shot = player1Shots.split(" ");
+            player1Result = player2.incomingShot(Integer.parseInt(player1Shot[0]),Integer.parseInt(player1Shot[1]));
+            if(player1Result.contains("Miss"))
+            {
+               System.out.println("\t\tMiss");
+               player1Hit = false;
+               player1.enemyBoard[Integer.parseInt(player1Shot[0])][Integer.parseInt(player1Shot[1])] = 7;
+            }
+            else if(player1Result.equals("YOU SUNK MY BATTLESHIP. YOU WIN! GAME OVER."))
+            {
+               winCondition = true;
+               System.out.println("you win");
+            }
+            else
+            {
+               player1Hit = true;
+               player1.enemyBoard[Integer.parseInt(player1Shot[0])][Integer.parseInt(player1Shot[1])] = 1;
+               System.out.println("\t\t"+player1Result);
+            }  
+               
+               
             if(winCondition == true)
                break;
          } 
          
-         while(player2Hit == true)
+         while(player2Hit == true && winCondition == false)
          {
             player2Result = "";
+            player2Shots = "";
             player2.displayEnemyBoard();  // Display players fired shots
-            player2.displayMyBoard();     // Display players board 
-            player2Result = player2.shoot(); // return appropriate response
-            player2Hit = false;
+            player2.displayMyBoard();     // Display players board
+            
+            player2Shots = player2.shoot(); // return appropriate response
+            String [] player2Shot = player2Shots.split(" ");
+            player2Result = player1.incomingShot(Integer.parseInt(player2Shot[0]),Integer.parseInt(player2Shot[1]));
+            if(player2Result.contains("Miss"))
+            {
+               System.out.println("\t\tMiss");
+               player2Hit = false;
+               player2.enemyBoard[Integer.parseInt(player2Shot[0])][Integer.parseInt(player2Shot[1])] = 7;
+            }
+            else if(player2Result.equals("YOU SUNK MY BATTLESHIP. YOU WIN! GAME OVER."))
+            {
+               winCondition = true;
+               System.out.println("you win");
+            }
+            else
+            {
+               player2Hit = true;
+               player2.enemyBoard[Integer.parseInt(player2Shot[0])][Integer.parseInt(player2Shot[1])] = 1;
+               System.out.println("\t\t"+player2Result);
+            }  
+               
+               
             if(winCondition == true)
                break;
          }   
@@ -85,9 +132,10 @@ class Player
 {
    static Scanner input = new Scanner(System.in);
    String playerName;
-   private int remainingShips;
-   private int[][] myBoard;
-   private int[][] enemyBoard;
+   int remainingShips;
+   int[][] myBoard;
+   int[][] enemyBoard;
+   
    public Player(String player)
    {
       playerName = player;
@@ -108,10 +156,10 @@ class Player
          {
             //System.out.print("|");
             board[q][w] = 0;
-            System.out.print(board[q][w]);
+            //System.out.print(board[q][w]);
          }
          //System.out.println("|");
-         System.out.println();  
+         //System.out.println();  
       }
       
       //Ship Generation
@@ -132,10 +180,10 @@ class Player
          {
             //System.out.print("|");
             board[q][w] = 0;
-            System.out.print(board[q][w]);
+            //System.out.print(board[q][w]);
          }
          //System.out.println("|");
-         System.out.println();  
+         //System.out.println();  
       }
    }
    
@@ -190,10 +238,9 @@ class Player
       {
          //Get random points for ship placement
          String[] temp = shipInfo().split(",");
-         int direction, rowIndex, columnIndex;
-         direction = Integer.parseInt(temp[0]);
-         rowIndex = Integer.parseInt(temp[1]);
-         columnIndex = Integer.parseInt(temp[2]);
+         int direction = Integer.parseInt(temp[0]);
+         int rowIndex = Integer.parseInt(temp[1]);
+         int columnIndex = Integer.parseInt(temp[2]);
          
          // Check to see the origin spot is valid
          if(board[rowIndex][columnIndex] == 0)
@@ -255,13 +302,12 @@ class Player
       return shipPlaced;
    }
    
-   //Player inputs their target coordinate, and the game sends a message to 
-   // the other player asking if it was a hit or miss, result is recorded on
-   // both players boards.
+   //Player inputs their target coordinate, this checks to verify the input is valid
    public String shoot()
    {
       int xCoord, yCoord;
       String target = "";
+      String cords[];
       while(true)
       {
          System.out.println("Please enter your target (ex. a,4):");
@@ -269,30 +315,79 @@ class Player
          // Make sure the input is valid
          if(target.length() == 3 && target.charAt(1) == ',')
          {
-            String cords[] = target.split(",");
+            cords = target.split(",");
             cords[0] = cords[0].toUpperCase();
-            xCoord = alphaToInt(cords[0]);
+            xCoord = alphaToInt(cords[0].charAt(0));
             if(xCoord != -1)
             {
                yCoord = Integer.parseInt(cords[1]);
                break;
             }
+            System.out.println("Please enter a valid target");
          }
          else
             System.out.println("\tInvalid input. Try again");   
       }
-      System.out.println(playerName + " SHOTS FIRED AT: (" + xCoord + "," + yCoord + ")!");
-      return "string";
+      System.out.print(playerName + " SHOTS FIRED AT: (" + cords[0] + "," + yCoord + ")!\n\t");
+      return xCoord+" "+yCoord;
    }
    
-   public String iHaveBeenShot(int xCoord, int yCoord)
+   public String incomingShot(int xCoord, int yCoord)
    {
-      return "Damn.";
+      if(myBoard[xCoord][yCoord] == 0)
+         return "Miss";
+      else if(myBoard[xCoord][yCoord] == 1)
+         return "Miss, you've already hit this spot!";
+      else if(myBoard[xCoord][yCoord] == 7)
+         return "Miss, you've already missed this spot!";
+      else if(myBoard[xCoord][yCoord] == 2)
+      {
+         myBoard[xCoord][yCoord] = 1;
+         if(searchGrid(myBoard,2) == true)
+            return "Hit";
+         else
+            return "YOU SUNK MY PATROL";
+      }
+      else if(myBoard[xCoord][yCoord] == 3)
+      {
+         myBoard[xCoord][yCoord] = 1;
+         if(searchGrid(myBoard,3) == true)
+            return "Hit";
+         else
+            return "YOU SUNK MY SUBMARINE";
+      }
+      else if(myBoard[xCoord][yCoord] == 4)
+      {
+         myBoard[xCoord][yCoord] = 1;
+         if(searchGrid(myBoard,4) == true)
+            return "Hit";
+         else
+            return "YOU SUNK MY DESTROYER";
+      }
+      else if(myBoard[xCoord][yCoord] == 5)
+      {
+         myBoard[xCoord][yCoord] = 1;
+         if(searchGrid(myBoard,5) == true)
+            return "Hit";
+         else
+            return "YOU SUNK MY CARRIER";
+      }
+      else if(myBoard[xCoord][yCoord] == 6)
+      {
+         // Check if that spot has the battleship
+         myBoard[xCoord][yCoord] = 1;
+         
+         if(searchGrid(myBoard,6) == true)
+            return "Hit";
+         else
+            return "YOU SUNK MY BATTLESHIP. YOU WIN! GAME OVER.";
+      }
+      else
+         return "Failed";
    }
    
-   private int alphaToInt(String character)
+   private int alphaToInt(char temp)
    {
-      char temp = character.charAt(0);
       switch(temp)
       {
          case 'A': 
@@ -317,5 +412,19 @@ class Player
             return 9;
       }
       return -1;
+   }
+   
+   public boolean searchGrid(int[][] myBoard, int target)
+   {
+      boolean stillHere = false;
+      for(int i = 0; i < 10; i++)
+      {
+         for(int k = 0; k < 10; k++)
+         {
+            if(myBoard[i][k] == target)
+               stillHere = true;
+         }
+      }
+      return stillHere;   
    }
 }
