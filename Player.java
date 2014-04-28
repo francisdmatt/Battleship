@@ -1,10 +1,10 @@
 /////////////////////////////////////////////////////////////////
-// Title: Battleship (Local Machine)                           //
-// Purpose: Simulate a Battleship game on your local computer. //
+// Title: Player class                                         //
+// Purpose: Creates the player class for use in Battleship     //
+//             standalone version as well as networked.        //
 // Creator: Matthew Francis                                    //
 // Date Started: 4/2/14                                        //  
-// Date Finished:                                              //
-// Status:                                                     //
+// Date Finished: 4/28/14                                      //
 // Notes: The following board information regards the coded    //
 //         version of the board, the live version is converted //
 //         to H (HIT), M (Miss), or the respective ship on     //
@@ -42,123 +42,34 @@ class Player
       playerName = player;
       myBoard = new int[10][10];
       enemyBoard = new int[10][10];
+      generateBoard(myBoard);
+      generateBoard(enemyBoard);
       generateShips(myBoard);
-      generateEnemyBoard(enemyBoard);
    }
       
-   // Creates the initial board
-   private void generateShips(int[][] board)
+   //Generates the starting board
+   private void generateBoard(int[][] board)
    {
       // Initial Board Creation
       for(int q = 0; q < 10; q++)
       {
          for(int w = 0; w < 10; w++)
          {
-            //System.out.print("|");
             board[q][w] = 0;
-            //System.out.print(board[q][w]);
          }
-         //System.out.println("|");
-         //System.out.println();  
       }
-      
+   }
+   
+   // Creates the initial board
+   private void generateShips(int[][] board)
+   {  
       //Ship Generation
       for(int i = 6; i > 1; i--)
       {
          placeShipAttempt(i,board);
       } 
    }
-   
-   //Generates the starting board for the enemy
-   // Status complete
-   private void generateEnemyBoard(int[][] board)
-   {
-      // Initial Board Creation
-      for(int q = 0; q < 10; q++)
-      {
-         for(int w = 0; w < 10; w++)
-         {
-            //System.out.print("|");
-            board[q][w] = 0;
-            //System.out.print(board[q][w]);
-         }
-         //System.out.println("|");
-         //System.out.println();  
-      }
-   }
 
-   public void displayBoards()
-   {
-      System.out.println("\t\tYour Board\t\t\t\t\tEnemy Board");
-      
-      System.out.print("    ");
-      for(int p = 0; p < 2; p++)
-      {
-         for(int i = 0; i < 10; i++)
-         {
-            System.out.print(i + "   ");
-         }
-         System.out.print("\t    ");
-      }
-
-
-      System.out.print(" ");
-      for(int p = 0; p < 2; p++)
-      {
-         for(int k = 0; k<41; k++)
-         {
-            System.out.print("-");
-         }
-         System.out.print("\t  ");
-      }
-      System.out.println();
-
-      for(int i = 0; i < 10; i++)
-      {
-         System.out.print(intToChar(i));
-         for(int k = 0; k < 10; k++)
-         {
-            if(myBoard[i][k] == 0)
-               System.out.print(" | ~");
-            else
-            {
-               System.out.print(" | " + shipToChar(myBoard[i][k]));
-            }
-         }
-         System.out.print(" |\t"+intToChar(i));
-         for(int k = 0; k < 10; k++)
-         {
-            if(enemyBoard[i][k] == 0)
-               System.out.print(" | ~");
-            else
-            {
-               System.out.print(" | " + shipToChar(enemyBoard[i][k]));
-            }
-         }
-         System.out.print(" |");
-         System.out.println();
-         System.out.print("  ");
-         for(int p = 0; p < 2; p++)
-         {
-            for(int k = 0; k<41; k++)
-            {
-               System.out.print("-");
-            }
-            System.out.print("\t  ");
-         }
-         System.out.println();
-      }
-      System.out.print("    ");
-      for(int p = 0; p < 2; p++)
-      {
-         for(int i = 0; i < 10; i++)
-         {
-            System.out.print(i + "   ");
-         }
-         System.out.print("\t    ");
-      }
-
-   }
    // Returns random start information for ship placement
    private String shipInfo()
    {
@@ -244,7 +155,7 @@ class Player
       return shipPlaced;
    }
    
-   public int alphaToInt(char temp)
+   public int charToInt(char temp)
    {
       switch(temp)
       {
@@ -298,7 +209,7 @@ class Player
          case 9:
             return 'J';
          default:
-            return 'x';
+            return 'X';
       }
    }
 
@@ -319,7 +230,7 @@ class Player
          case 7:
             return ' ';
          default:
-            return 'x';
+            return 'X';
       }
    }
    
@@ -337,6 +248,78 @@ class Player
       return stillHere;   
    }
 
+   public void displayBoards()
+   {
+      System.out.println("\t\tYour Board\t\t\t\t\tEnemy Board");
+      
+      System.out.print("    ");
+      for(int p = 0; p < 2; p++)
+      {
+         for(int i = 0; i < 10; i++)
+         {
+            System.out.print(i + "   ");
+         }
+         System.out.print("\t    ");
+      }
+
+
+      System.out.print(" ");
+      for(int p = 0; p < 2; p++)
+      {
+         for(int k = 0; k<41; k++)
+         {
+            System.out.print("-");
+         }
+         System.out.print("\t  ");
+      }
+      System.out.println();
+
+      for(int i = 0; i < 10; i++)
+      {
+         System.out.print(intToChar(i));
+         for(int k = 0; k < 10; k++)
+         {
+            if(myBoard[i][k] == 0)
+               System.out.print(" | ~");
+            else
+            {
+               System.out.print(" | " + shipToChar(myBoard[i][k]));
+            }
+         }
+         System.out.print(" |\t"+intToChar(i));
+         for(int k = 0; k < 10; k++)
+         {
+            if(enemyBoard[i][k] == 0)
+               System.out.print(" | ~");
+            else
+            {
+               System.out.print(" | " + shipToChar(enemyBoard[i][k]));
+            }
+         }
+         System.out.print(" |");
+         System.out.println();
+         System.out.print("  ");
+         for(int p = 0; p < 2; p++)
+         {
+            for(int k = 0; k<41; k++)
+            {
+               System.out.print("-");
+            }
+            System.out.print("\t  ");
+         }
+         System.out.println();
+      }
+      System.out.print("    ");
+      for(int p = 0; p < 2; p++)
+      {
+         for(int i = 0; i < 10; i++)
+         {
+            System.out.print(i + "   ");
+         }
+         System.out.print("\t    ");
+      }
+   }
+
    //Player inputs their target coordinate, this checks to verify the input is valid
    public String shoot()
    {
@@ -350,36 +333,50 @@ class Player
          // Make sure the input is valid
          if(target.length() == 3 && target.charAt(1) == ',')
          {
-            cords = target.split(",");
-            cords[0] = cords[0].toUpperCase();
-            xCoord = alphaToInt(cords[0].charAt(0));
-            if(xCoord != -1)
+            try
             {
-               yCoord = Integer.parseInt(cords[1]);
-               break;
+               cords = target.split(",");
+               cords[0] = cords[0].toUpperCase();
+               xCoord = charToInt(cords[0].charAt(0));
+               if(xCoord != -1)
+               {
+                  yCoord = Integer.parseInt(cords[1]);
+                  break;
+               }
+               System.out.println("Please enter a valid target");
             }
-            System.out.println("Please enter a valid target");
+            catch (Exception e)
+            {
+               System.out.println("\tInvalid input. Try again");
+               System.out.println(e.getMessage());
+            }
          }
          else
             System.out.println("\tInvalid input. Try again");   
       }
-      System.out.print(playerName + " SHOTS FIRED AT: (" + cords[0] + "," + yCoord + ")!\n\t");
+      //System.out.print(playerName + " SHOTS FIRED AT: (" + cords[0] + "," + yCoord + ")!\n\t");
       return xCoord+","+yCoord;
    }
    
    public String incomingShot(int xCoord, int yCoord)
    {
       if(myBoard[xCoord][yCoord] == 0 || 
-         myBoard[xCoord][yCoord] == 1 ||
          myBoard[xCoord][yCoord] == 7)
+      {
+         myBoard[xCoord][yCoord] = 7;
          return "MISS";
+      }
+      else if(myBoard[xCoord][yCoord] == 1)
+      {
+         return "REPETITIVE SHOT";
+      }
       else if(myBoard[xCoord][yCoord] == 2)
       {
          myBoard[xCoord][yCoord] = 1;
          if(searchGrid(myBoard,2) == true)
             return "HIT";
          else
-            return "YOU SUNK MY PATROL";
+            return "YOU SUNK THE ENEMIES PATROL";
       }
       else if(myBoard[xCoord][yCoord] == 3)
       {
@@ -387,7 +384,7 @@ class Player
          if(searchGrid(myBoard,3) == true)
             return "HIT";
          else
-            return "YOU SUNK MY SUBMARINE";
+            return "YOU SUNK THE ENEMIES SUBMARINE";
       }
       else if(myBoard[xCoord][yCoord] == 4)
       {
@@ -395,7 +392,7 @@ class Player
          if(searchGrid(myBoard,4) == true)
             return "HIT";
          else
-            return "YOU SUNK MY DESTROYER";
+            return "YOU SUNK THE ENEMIES DESTROYER";
       }
       else if(myBoard[xCoord][yCoord] == 5)
       {
@@ -403,7 +400,7 @@ class Player
          if(searchGrid(myBoard,5) == true)
             return "HIT";
          else
-            return "YOU SUNK MY CARRIER";
+            return "YOU SUNK THE ENEMIES CARRIER";
       }
       else if(myBoard[xCoord][yCoord] == 6)
       {
@@ -413,7 +410,7 @@ class Player
          if(searchGrid(myBoard,6) == true)
             return "HIT";
          else
-            return "YOU SUNK MY BATTLESHIP. YOU WIN! GAME OVER.";
+            return "YOU SUNK THE ENEMIES BATTLESHIP!";
       }
       else
          return "Failed";
