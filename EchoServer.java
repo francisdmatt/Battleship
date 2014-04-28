@@ -53,16 +53,15 @@ public class EchoServer
 				}
 			}
 
-			server.displayEnemyBoard();
-			server.displayMyBoard();
+			server.displayBoards();
 			String inputLine;
 			System.out.println("Waiting to Recieve message ...");
 			while((inputLine = in.readLine()) != null)
 			{
-				server.displayEnemyBoard();
-				server.displayMyBoard();
+				server.displayBoards();
 
 				// Reponse from Client Side
+				System.out.println();
 				System.out.println("\tRecieved "+inputLine);
 					if(inputLine.contains("BATTLESHIP"))
 					{
@@ -91,9 +90,7 @@ public class EchoServer
 				//System.out.println("Type Message >>>");
 
 				//Sending to server
-					server.displayEnemyBoard();
-					server.displayMyBoard();
-					//server.displayBoards();
+					server.displayBoards();
 					
                   	target = server.shoot(); // Get target:  a,2
                   	target2 = target.split(",");

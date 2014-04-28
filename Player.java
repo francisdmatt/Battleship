@@ -11,122 +11,23 @@
 //         the player board C (Carrier), P (Patrol), etc.      //
 //                                                             //
 // The following is the player board dictionary(Int version)   //
-//       0 - Water                                             //
-//       1 - HIT (Other player's shot)                         //
-//       2 - Patrol                                            //
-//       3 - Submarine                                         //
-//       4 - Destroyer                                         //
-//       5 - Carrier                                           //
-//       6 - Battleship                                        //
-//       7 - Miss (Other player's shot)                        //
+//       0 [~] - Water                                         //
+//       1 [X] - HIT (Other player's shot)                     //
+//       2 [P] - Patrol                                        //
+//       3 [S] - Submarine                                     //
+//       4 [D] - Destroyer                                     //
+//       5 [C] - Carrier                                       //
+//       6 [B] - Battleship                                    //
+//       7 [ ] - Miss (Other player's shot)                    //
 // The following is the enemy board dictionary(Int version)    //
-//       0 - Water                                             //
-//       1 - HIT                                               //
-//       7 - Miss                                              //
+//       0 [~] - Water                                         //
+//       1 [X] - HIT                                           //
+//       7 [ ] - Miss                                          //
 //                                                             //
 /////////////////////////////////////////////////////////////////
 
 import java.util.*;
 import java.io.*;
-/*
-public class BattleshipGame
-{
-   static Scanner input = new Scanner(System.in);
-   static boolean winCondition = false;
-
-   public static void main(String [] args)
-   {
-      // Create game variables
-      //System.out.println("Creating Player(s).");
-      
-      //System.out.println("Generating Player 1 Board.");
-      Player player1 = new Player("Player 1");
-      //System.out.println("Generating Player 2 Board.");
-      Player player2 = new Player("Player 2");
-      
-      System.out.println("Let the game begin.");
-      //String temp = input.next();
-      
-      // Main Game Loop
-      boolean player1HIT, player2HIT;
-      String player1Result, player2Result, gameWinner;
-      String player1Shots, player2Shots;
-      // While no battleship has been sunk, the game will continue
-      // If a player successfully HITs an enemy ship, they get to go again
-      while(winCondition == false)
-      {  
-         player1HIT = true;
-         player2HIT = true;
-         
-         while(player1HIT == true && winCondition == false)
-         {
-            player1Result = "";
-            player1Shots = "";
-            player1.displayEnemyBoard();  // Display players fired shots
-            player1.displayMyBoard();     // Display players board
-            
-            player1Shots = player1.shoot(); // return appropriate response
-            String [] player1Shot = player1Shots.split(" ");
-            player1Result = player2.incomingShot(Integer.parseInt(player1Shot[0]),Integer.parseInt(player1Shot[1]));
-            if(player1Result.contains("Miss"))
-            {
-               System.out.println("\t\tMiss");
-               player1HIT = false;
-               player1.enemyBoard[Integer.parseInt(player1Shot[0])][Integer.parseInt(player1Shot[1])] = 7;
-            }
-            else if(player1Result.equals("YOU SUNK MY BATTLESHIP. YOU WIN! GAME OVER."))
-            {
-               winCondition = true;
-               System.out.println("you win");
-            }
-            else
-            {
-               player1HIT = true;
-               player1.enemyBoard[Integer.parseInt(player1Shot[0])][Integer.parseInt(player1Shot[1])] = 1;
-               System.out.println("\t\t"+player1Result);
-            }  
-               
-               
-            if(winCondition == true)
-               break;
-         } 
-         
-         while(player2HIT == true && winCondition == false)
-         {
-            player2Result = "";
-            player2Shots = "";
-            player2.displayEnemyBoard();  // Display players fired shots
-            player2.displayMyBoard();     // Display players board
-            
-            player2Shots = player2.shoot(); // return appropriate response
-            String [] player2Shot = player2Shots.split(" ");
-            player2Result = player1.incomingShot(Integer.parseInt(player2Shot[0]),Integer.parseInt(player2Shot[1]));
-            if(player2Result.contains("Miss"))
-            {
-               System.out.println("\t\tMiss");
-               player2HIT = false;
-               player2.enemyBoard[Integer.parseInt(player2Shot[0])][Integer.parseInt(player2Shot[1])] = 7;
-            }
-            else if(player2Result.equals("YOU SUNK MY BATTLESHIP. YOU WIN! GAME OVER."))
-            {
-               winCondition = true;
-               System.out.println("you win");
-            }
-            else
-            {
-               player2HIT = true;
-               player2.enemyBoard[Integer.parseInt(player2Shot[0])][Integer.parseInt(player2Shot[1])] = 1;
-               System.out.println("\t\t"+player2Result);
-            }  
-               
-               
-            if(winCondition == true)
-               break;
-         }   
-      }
-   }
-}
-*/
 
 class Player
 {
@@ -185,38 +86,7 @@ class Player
          //System.out.println();  
       }
    }
-   
-   /*
-   public void displayMyBoard()
-   {
-      System.out.println(playerName + "'s Board");
-      for(int q = 0; q < 10; q++)
-      {
-         for(int w = 0; w < 10; w++)
-         {
-            //System.out.print("|");
-            System.out.print(myBoard[q][w]);
-         }
-         //System.out.println("|");
-         System.out.println();  
-      }
-   }
 
-   public void displayEnemyBoard()
-   {
-      System.out.println(playerName + "'s Fired Shots");
-      for(int q = 0; q < 10; q++)
-      {
-         for(int w = 0; w < 10; w++)
-         {
-            //System.out.print("|");
-            System.out.print(enemyBoard[q][w]);
-         }
-         //System.out.println("|");
-         System.out.println();  
-      }
-   }
-   */
    public void displayBoards()
    {
       System.out.println("\t\tYour Board\t\t\t\t\tEnemy Board");
@@ -467,7 +337,7 @@ class Player
       return stillHere;   
    }
 
-      //Player inputs their target coordinate, this checks to verify the input is valid
+   //Player inputs their target coordinate, this checks to verify the input is valid
    public String shoot()
    {
       int xCoord, yCoord;

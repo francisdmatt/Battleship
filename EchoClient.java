@@ -54,8 +54,7 @@ public class EchoClient {
 
 				while (wonGame==false && status.equals("READY"))
 				{
-					client.displayEnemyBoard();
-					client.displayMyBoard();
+					client.displayBoards();
 
                   	target = client.shoot(); // Get target:  a,2
                   	target2 = target.split(",");
@@ -80,6 +79,7 @@ public class EchoClient {
 					//Response from Server Client
 					userInput = inSend.readLine();
 
+					System.out.println();
 					System.out.println("\tRecieved "+userInput);
 					if(userInput.contains("BATTLESHIP"))
 					{
