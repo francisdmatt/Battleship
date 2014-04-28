@@ -1,10 +1,12 @@
 import java.io.*;
 import java.net.*;
 
-public class EchoClient
+public class EchoClient2
 {
    public static void main(String[] args) throws IOException 
    {
+
+      Player client = new Player("Client");
       if(args.length != 2) 
       {
          System.err.println("Usuage: java EchoClient <host name> <port number>");
@@ -14,25 +16,8 @@ public class EchoClient
       String hostName = args[0];
       int portNumber = Integer.parseInt(args[1]);
    
-      Player client = new Player("Client");
-      boolean wonGame = false;
-      boolean playerHit = false;
-      String myResult = ""; // Result of last shot
-      String incomingShot = ""; // Incoming target
-      String theirResult = "NULL"; // Result of their shot
-      String target = ""; // My new target
-      int myTargetX, myTargetY;
-      String[] target2;
-      int theirX, theirY;
-      String status = "notReady";
-      String userInput = "";
-      String userInput2[];
-   	// Message Format:
-   	//		HIT/MISS/SUNKETC,MOVE,A,2
-   
       while(true)
-      {
-      	//SendMode
+      {      
          try 
          {
             Socket echoSocket = new Socket(hostName, portNumber);
@@ -40,67 +25,81 @@ public class EchoClient
             BufferedReader inSend = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
             BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
          
-            while(status != "READY")
+            String userInput;
+            int receivedTargetX = -1;
+            int receivedTargetY = -1;
+            String myTarget = "";
+            int myTargetX = -1;
+            int myTargetY = -1;
+            String theirResult = "";
+            String myResult = "";
+            boolean readyStatus = false;
+
+            while(readyStatus == false)
             {
                System.out.println("Ready? Y/N");
-               String readyStatus = stdIn.readLine();
-               if(readyStatus.equals("Y"))
+               String answer = stdIn.readLine();
+               if(answer.equals("Y"))
                {
-                  outSend.println(readyStatus);
-                  String inputLine = inSend.readLine();
-                  if(inputLine.equals("Y"))
-                     status = "READY";
+                  outSend.println("READY");
+                  answer = inSend.readLine();
+                  if(answer.equals("READY"))
+                     readyStatus = true;
                }
             }
-         
-            while (wonGame==false && status.equals("READY"))
+            
+            while (readyStatus == true)
             {
                client.displayBoards();
-            
-               target = client.shoot(); // Get target:  a,2
-               target2 = target.split(",");
-               myTargetX = Integer.parseInt(target2[0]);
-               myTargetY = Integer.parseInt(target2[1]);
-               userInput = theirResult + ",MOVE," + target;
-            
-            
-            	//Sending message to server
-               System.out.println("Outsend: " + userInput);
-            
-               outSend.println(userInput);
-               if(userInput.contains("BATTLESHIP"))
+               myTarget = client.shoot();
+               myTargetX = Character.getNumericValue(myTarget.charAt(0));
+               myTargetY = Character.getNumericValue(myTarget.charAt(2));
+               outSend.println("MOVE,"+myTargetX+","+myTargetY);
+               myResult = inSend.readLine();
+               System.out.println("Your move ("+client.intToChar(Character.getNumericValue(myTarget.charAt(0)))
+                     +","+myTargetY+"):"+ myResult+"!");
+               if(myResult.contains("BATTLESHIP"))
                {
+                  System.out.println("YOU WIN!");
                   System.exit(0);
-                  for(int i = 0; i < 100; i++)
-                     System.out.print("");
                }
-               System.out.println("Waiting to Recieve message ...");
-            	
-            
-            	//Response from Server Client
-               userInput = inSend.readLine();
-            
-               System.out.println();
-               System.out.println("\tRecieved "+userInput);
-               if(userInput.contains("BATTLESHIP"))
+               else if(myResult.contains("HIT") || myResult.contains("SUNK"))
                {
-                  System.exit(0);
-                  for(int i = 0; i < 100; i++)
-                     System.out.print("");
-               }
-               userInput2 = userInput.split(",");
-               myResult = userInput2[0];
-               if(myResult.contains("NULL"))
-                  System.out.print("");
-               if(myResult.contains("MISS"))
-                  client.markEnemyBoard(myTargetX,myTargetY,7);
-               if(myResult.contains("HIT") || myResult.contains("SUNK"))
                   client.markEnemyBoard(myTargetX,myTargetY,1);
-            
-               theirX = Integer.parseInt(userInput2[2]);
-               theirY = Integer.parseInt(userInput2[3]);
-               theirResult = client.incomingShot(theirX,theirY);
-               client.markMyBoard(theirX,theirY);
+               }
+               else if(myResult.contains("MISS"))
+               {
+                  client.markEnemyBoard(myTargetX,myTargetY,7);
+               }
+               client.displayBoards();
+               System.out.println("Waiting for enemy's target...");
+               userInput = inSend.readLine();
+               System.out.println("\tRecieved "+userInput);
+               String [] temp = userInput.split(",");
+               receivedTargetX = Character.getNumericValue(temp[1].charAt(0));
+               receivedTargetY = Character.getNumericValue(temp[2].charAt(0));
+               theirResult = client.incomingShot(receivedTargetX,receivedTargetY);
+               System.out.print("Incoming shot at: ("+client.intToChar(receivedTargetX)
+                  +","+receivedTargetY+")!\t");
+
+               if(theirResult.contains("BATTLESHIP"))
+               {
+                  System.out.println(theirResult);
+                  outSend.println(theirResult);
+                  System.out.println("THE ENEMY HAS WON. ALL IS LOST.");
+                  System.exit(0);
+               }
+               else if(theirResult.contains("SUNK"))
+               {
+                  String temp2[] = theirResult.split(" ");
+                  System.out.println("THEY SUNK YOUR "+ temp2[4]+"!");
+                  outSend.println(theirResult);
+               }
+               else
+               {
+                  System.out.println(theirResult);
+                  outSend.println(theirResult);  
+               }
             }
          } 
          catch (UnknownHostException e)
@@ -114,10 +113,5 @@ public class EchoClient
             System.exit(1);
          }
       }
-   }
-
-   public String sendOut(String toSend)
-   {
-      return "Sent";
    }
 }
