@@ -23,13 +23,14 @@ public class EchoClient {
 		int myTargetX, myTargetY;
 		String[] target2;
 		int theirX, theirY;
-		String status = "READY";
+		String status = "notReady";
 		String userInput = "";
 		String userInput2[];
 		// Message Format:
 		//		HIT/MISS/SUNKETC,MOVE,A,2
 
-		while(true){
+		while(true)
+		{
 			//SendMode
 			try 
 			{
@@ -38,13 +39,24 @@ public class EchoClient {
 				BufferedReader inSend = new BufferedReader(new InputStreamReader(echoSocket.getInputStream()));
 				BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 
+				while(status != "READY")
+				{
+					System.out.println("Ready? Y/N");
+					String readyStatus = stdIn.readLine();
+					if(readyStatus.equals("Y"))
+					{
+						outSend.println(readyStatus);
+						String inputLine = inSend.readLine();
+						if(inputLine.equals("Y"))
+							status = "READY";
+					}
+				}
 
-				//System.out.println("Type Message >>>");
 				while (wonGame==false && status.equals("READY"))
 				{
 					client.displayEnemyBoard();
 					client.displayMyBoard();
-					//POINT A
+
                   	target = client.shoot(); // Get target:  a,2
                   	target2 = target.split(",");
                   	myTargetX = Integer.parseInt(target2[0]);
@@ -52,25 +64,22 @@ public class EchoClient {
                   	userInput = theirResult + ",MOVE," + target;
 
 
-                  	//User Input is withing the userInput variable at this point
-					//The below function is the variable that is sent to the server
-// NO CODE BETWEEN THIS POINT
-                  	System.out.println("Outsend: " + userInput);
+					//Sending message to server
+					System.out.println("Outsend: " + userInput);
 
-/**/			outSend.println(userInput);
-				if(userInput.contains("BATTLESHIP"))
-				{
-					System.exit(0);
-					for(int i = 0; i < 100; i++)
-						System.out.print("");
-				}
-/**/			System.out.println("Waiting to Recieve message ...");
-//					//The below variable is feed the response from the server
-/**/			userInput = inSend.readLine();
-// AND THIS POINT
-					//POINT B
-// CODE THAT IS RECEIVED FROM THE SERVER
-					//At the point the server response is captured within userInput
+					outSend.println(userInput);
+					if(userInput.contains("BATTLESHIP"))
+					{
+						System.exit(0);
+						for(int i = 0; i < 100; i++)
+							System.out.print("");
+					}
+					System.out.println("Waiting to Recieve message ...");
+					
+
+					//Response from Server Client
+					userInput = inSend.readLine();
+
 					System.out.println("\tRecieved "+userInput);
 					if(userInput.contains("BATTLESHIP"))
 					{
@@ -91,10 +100,6 @@ public class EchoClient {
 					theirY = Integer.parseInt(userInput2[3]);
 					theirResult = client.incomingShot(theirX,theirY);
 					client.markMyBoard(theirX,theirY);
-
-					client.displayEnemyBoard();
-					client.displayMyBoard();
-					//System.out.println("Type Message >>>");
 				}
 			} 
 			catch (UnknownHostException e)
@@ -108,5 +113,10 @@ public class EchoClient {
 				System.exit(1);
 			}
 		}
+	}
+
+	public String sendOut(String toSend)
+	{
+		return "Sent";
 	}
 }

@@ -23,7 +23,7 @@ public class EchoServer
 		int myTargetX=-1, myTargetY=-1;
 		String[] target2;
 		int theirX=-1, theirY=-1;
-		String status = "READY";
+		String status = "notReady";
 		String userInput = "";
 		String userInput2[];
 
@@ -38,6 +38,21 @@ public class EchoServer
 			BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
 			PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 			
+			String inputLine4 = in.readLine();
+			while(status != "READY")
+			{
+				if(inputLine4.equals("Y"))
+				{
+					System.out.println("Ready? Y/N");
+					String readyStatus = stdIn.readLine();
+					if(readyStatus.equals("Y"))
+					{
+						status = "READY";
+						out.println(readyStatus);
+					}
+				}
+			}
+
 			server.displayEnemyBoard();
 			server.displayMyBoard();
 			String inputLine;
@@ -46,10 +61,8 @@ public class EchoServer
 			{
 				server.displayEnemyBoard();
 				server.displayMyBoard();
-				//POINT A
-				//
-				//At this point the user has sent the information to the host (this program)
 
+				// Reponse from Client Side
 				System.out.println("\tRecieved "+inputLine);
 					if(inputLine.contains("BATTLESHIP"))
 					{
@@ -69,34 +82,25 @@ public class EchoServer
 					if(myResult.contains("HIT") || myResult.contains("SUNK"))
 						server.markEnemyBoard(myTargetX,myTargetY,1);
 
-					System.out.println("\t" + userInput2[2]);
 					theirX = Integer.parseInt(userInput2[2]);
 					theirY = Integer.parseInt(userInput2[3]);					
-					System.out.println("\t X: "+ theirX);
-					System.out.println("\t Y: "+ theirY);
 					theirResult = server.incomingShot(theirX,theirY);
 					server.markMyBoard(theirX,theirY);
 
-				System.out.println("Swtiching to SendMode");
-				System.out.println("Type Message >>>");
-				//inputLine = stdIn.readLine();
+				//System.out.println("Swtiching to SendMode");
+				//System.out.println("Type Message >>>");
 
-				//POINT B
-
-				//
-				//User input is waiting in the userInput variable at this point
-				//The below funciton is the variable that is sent to the client
-
+				//Sending to server
 					server.displayEnemyBoard();
 					server.displayMyBoard();
-					//POINT A
+					//server.displayBoards();
+					
                   	target = server.shoot(); // Get target:  a,2
                   	target2 = target.split(",");
                   	myTargetX = Integer.parseInt(target2[0]);
                   	myTargetY = Integer.parseInt(target2[1]);
                   	userInput = theirResult + ",MOVE," + target;
 
-                  	//inputLine = theirResult+",MOVE,"+
                  System.out.println("Outsend: " +userInput);
 				out.println(userInput);
 				if(userInput.contains("BATTLESHIP"))
@@ -113,5 +117,10 @@ public class EchoServer
 			System.out.println("Excpetion caught when trying to listen on port " + portNumber + " or listening for a connection");
 			System.out.println(e.getMessage());
 		}
+	}
+
+	public String sendOut(String toSend)
+	{
+		return "Sent";
 	}
 }

@@ -201,6 +201,31 @@ class Player
       }
    }
    
+   public void displayBoards()
+   {
+      for(int i = 0; i < 10; i++)
+      {
+         
+         for(int k = 0; k < 10; k++)
+         {
+            System.out.print(" | " + myBoard[i][k]);
+         }
+         System.out.print(" |\t");
+         for(int k = 0; k < 10; k++)
+         {
+            System.out.print(" | " + enemyBoard[i][k]);
+         }
+         System.out.println();
+         System.out.print(" ");
+         for(int k = 0; k<41; k++)
+         {
+            System.out.print("-");
+         }
+         System.out.println();
+      }
+
+   }
+
    public void displayEnemyBoard()
    {
       System.out.println(playerName + "'s Fired Shots");
