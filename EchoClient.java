@@ -1,7 +1,8 @@
 import java.io.*;
 import java.net.*;
+import java.util.Random;
 
-public class EchoClient2
+public class EchoClient
 {
    public static void main(String[] args) throws IOException 
    {
@@ -84,7 +85,7 @@ public class EchoClient2
 
                if(theirResult.contains("BATTLESHIP"))
                {
-                  System.out.println(theirResult);
+                  System.out.println("THEY HAVE SUNK YOUR BATTLESHIP!");
                   outSend.println(theirResult);
                   System.out.println("THE ENEMY HAS WON. ALL IS LOST.");
                   System.exit(0);
@@ -113,5 +114,15 @@ public class EchoClient2
             System.exit(1);
          }
       }
+   }
+
+   public int connection()
+   {
+      Random generator = new Random(); 
+      int i = generator.nextInt(10) + 1;
+      if(i == 1)
+         return 1; // 1 is bad, failed connection
+      else
+         return 0; // 0 is good, successful connection
    }
 }
