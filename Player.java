@@ -228,7 +228,7 @@ class Player
          case 6:
             return 'B';
          case 7:
-            return '~';
+            return ' ';
          default:
             return 'X';
       }
@@ -280,7 +280,7 @@ class Player
          for(int k = 0; k < 10; k++)
          {
             if(myBoard[i][k] == 0)
-               System.out.print(" |  ");
+               System.out.print(" | ~");
             else
             {
                System.out.print(" | " + shipToChar(myBoard[i][k]));
@@ -290,7 +290,7 @@ class Player
          for(int k = 0; k < 10; k++)
          {
             if(enemyBoard[i][k] == 0)
-               System.out.print(" |  ");
+               System.out.print(" | ~");
             else
             {
                System.out.print(" | " + shipToChar(enemyBoard[i][k]));
