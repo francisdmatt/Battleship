@@ -328,7 +328,7 @@ class Player
       String cords[];
       while(true)
       {
-         System.out.println("Please enter your target (ex. a,4):");
+         System.out.print("Please enter your target (ex. a,4):\t");
          target = input.next();
          // Make sure the input is valid
          if(target.length() == 3 && target.charAt(1) == ',')

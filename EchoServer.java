@@ -4,6 +4,8 @@ import java.util.Random;
 
 public class EchoServer
 {
+   static PrintWriter out;
+   static BufferedReader in;
    public static void main(String args[]) throws IOException
    {
       Player server = new Player("Server");
@@ -29,9 +31,9 @@ public class EchoServer
       {
          ServerSocket serverSocket = new ServerSocket(portNumber);
          Socket clientSocket = serverSocket.accept();
-         BufferedReader in=new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+         in =new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
          BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-         PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+         out = new PrintWriter(clientSocket.getOutputStream(), true);
       
          String answer2 = in.readLine();
          while(readyStatus == false)
@@ -47,43 +49,18 @@ public class EchoServer
                }
             }
          }
-      
-         String inputLine;
-         server.displayBoards();
-         System.out.println("Waiting for enemy's target...");
-         while((inputLine = in.readLine()) != null)
-         {
-            String [] temp = inputLine.split(",");
-            receivedTargetX = Character.getNumericValue(temp[1].charAt(0));
-            receivedTargetY = Character.getNumericValue(temp[2].charAt(0));
-            theirResult =server.incomingShot(receivedTargetX,receivedTargetY);
-            System.out.print("Incoming shot at: ("+server.intToChar(receivedTargetX)
-                  +","+receivedTargetY+")!\t");
-            if(theirResult.contains("BATTLESHIP"))
-            {
-               System.out.println("THEY HAVE SUNK YOUR BATTLESHIP!");
-               out.println(theirResult);
-               System.out.println("THE ENEMY HAS WON. ALL IS LOST.");
-               System.exit(0);
-            }
-            else if(theirResult.contains("SUNK"))
-            {
-               String temp2[] = theirResult.split(" ");
-               System.out.println("THEY SUNK YOUR "+ temp2[4]+"!");
-               out.println(theirResult);
-            }
-            else
-            {
-               System.out.println(theirResult);
-               out.println(theirResult);  
-            }
          
+         String inputLine = "";
+         while(true)
+         {
             server.displayBoards();
             myTarget = server.shoot();
             myTargetX = Character.getNumericValue(myTarget.charAt(0));
             myTargetY = Character.getNumericValue(myTarget.charAt(2));
-            out.println("MOVE,"+myTargetX+","+myTargetY);
-            myResult = in.readLine();
+            //out.println("MOVE,"+myTargetX+","+myTargetY);
+            sendMessage("MOVE,"+myTargetX+","+myTargetY);
+            myResult = getMessage();
+            //myResult = in.readLine();
             System.out.println("Your move ("+server.intToChar(Character.getNumericValue(myTarget.charAt(0)))
                      +","+myTargetY+"):"+ myResult+"!");
             
@@ -103,6 +80,35 @@ public class EchoServer
          
             server.displayBoards();
             System.out.println("Waiting for enemy's target...");
+            //inputLine = in.readLine();
+            inputLine = getMessage();
+            String [] temp = inputLine.split(",");
+            receivedTargetX = Character.getNumericValue(temp[1].charAt(0));
+            receivedTargetY = Character.getNumericValue(temp[2].charAt(0));
+            theirResult =server.incomingShot(receivedTargetX,receivedTargetY);
+            System.out.print("Incoming shot at: ("+server.intToChar(receivedTargetX)
+                  +","+receivedTargetY+")!\t");
+            if(theirResult.contains("BATTLESHIP"))
+            {
+               System.out.println("THEY HAVE SUNK YOUR BATTLESHIP!");
+               //out.println(theirResult);
+               sendMessage(theirResult);
+               System.out.println("THE ENEMY HAS WON. ALL IS LOST.");
+               System.exit(0);
+            }
+            else if(theirResult.contains("SUNK"))
+            {
+               String temp2[] = theirResult.split(" ");
+               System.out.println("THEY SUNK YOUR "+ temp2[4]+"!");
+               //out.println(theirResult);
+               sendMessage(theirResult);
+            }
+            else
+            {
+               System.out.println(theirResult);
+               //out.println(theirResult);  
+               sendMessage(theirResult);
+            }
          }
       } 
       catch (IOException e)
@@ -112,8 +118,36 @@ public class EchoServer
          System.out.println(e.getMessage());
       }
    }
- 
-   public int connection()
+
+   public static String getMessage()
+   {
+      try
+      {
+         return in.readLine();  
+      }
+      catch (Exception e)
+      {
+         System.out.println(e.getMessage());
+         return "failed";
+      } 
+   }
+
+   public static void sendMessage(String message)
+   {
+      if(connection() == 0)
+      {
+         System.out.println("MESSAGE SENT");
+         out.println(message);
+      }
+      else
+      {
+         System.out.println("ERROR: MESSAGE NOT SENT");
+         System.out.println("RECEIVED TIMEOUT");
+         sendMessage(message);
+      }
+   }
+
+   public static int connection()
    {
       Random generator = new Random(); 
       int i = generator.nextInt(10) + 1;
